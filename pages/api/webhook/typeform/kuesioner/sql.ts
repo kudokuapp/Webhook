@@ -18,7 +18,9 @@ export default async function handler(
   if (isValid) {
     try {
       const response = await dbQuery(email, subscribe);
-      res.status(200).json(response);
+      res
+        .status(200)
+        .json({ message: 'Sukses ganti status subscribe', response });
     } catch (e) {
       const error = e as Error;
       res.status(500).json({ error: error.message });
