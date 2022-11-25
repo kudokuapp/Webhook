@@ -391,7 +391,7 @@ async function sendInvitationEmail({
   const msg = {
     to: email,
     from: 'Furqon @ Kudoku <furqon@kudoku.id>',
-    subject: 'Kamu diundang masuk Kudoku!',
+    subject: 'Kamu diundang masuk Kudoku!🎉',
     text: 'Langsung aja buat username dan password!',
     html,
   };
