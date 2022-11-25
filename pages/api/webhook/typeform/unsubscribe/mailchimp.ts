@@ -12,7 +12,7 @@ export default async function handler(
   const isValid = verifyHeader(req, event_type);
 
   const email = answers[0].email;
-  const subscribe = answers[1].choice.label === 'Ya' ? true : false;
+  const subscribe = answers[1].choice.label === 'Ya' ? false : true;
 
   if (isValid) {
     try {
