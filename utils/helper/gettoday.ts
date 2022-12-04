@@ -32,5 +32,7 @@ export function getTodayLong() {
 export function getTodayShort() {
   const today = new Date();
 
-  return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  return `${today.getFullYear()}-${today.getMonth() + 1}-${
+    today.getDate() < 10 ? `0${today.getDate()}` : today.getDate()
+  }`;
 }
