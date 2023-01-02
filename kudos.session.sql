@@ -17,3 +17,6 @@ VALUES (50, 'Fikri', 'Anray', 'fikri.anray@gmail.com', '+6281356749007', '2022-1
 
 -- @block
 UPDATE users_final SET source='website'
+
+-- @block
+DELETE FROM users_final WHERE id=55;
