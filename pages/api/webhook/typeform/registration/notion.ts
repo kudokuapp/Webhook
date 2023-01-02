@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import getKudosNumber from '$database/getkudosnumber';
 import verifyHeader from '$utils/typeform/verifyheader';
 import { upperCaseEveryLetter } from '$utils/helper/datacleaning';
-import { getTodayShort } from '$utils/helper/gettoday';
 import { Client } from '@notionhq/client';
 import { renderSource } from '$utils/typeform/rendersource';
 
@@ -25,7 +24,7 @@ export default async function handler(
     lastName: upperCaseEveryLetter(`${answers[1].text}`),
     email: `${answers[2].email}`,
     wa: `+${hiddenAnswers.wa.trim()}`.trim(),
-    registerDate: getTodayShort(),
+    registerDate: new Date(),
     invited: false,
     subscribe: true,
     source: renderSource(Number(hiddenAnswers.index)),
