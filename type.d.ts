@@ -10,5 +10,6 @@ export global {
     registerDate: string | Date;
     invited: boolean;
     subscribe: boolean;
+    source?: string;
   }
 }

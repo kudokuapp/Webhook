@@ -4,6 +4,7 @@ import verifyHeader from '$utils/typeform/verifyheader';
 import { upperCaseEveryLetter } from '$utils/helper/datacleaning';
 import { getTodayShort } from '$utils/helper/gettoday';
 import pool from '$utils/postgres';
+import { renderSource } from '$utils/typeform/rendersource';
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,6 +28,7 @@ export default async function handler(
     registerDate: getTodayShort(),
     invited: false,
     subscribe: true,
+    source: renderSource(Number(hiddenAnswers.index)),
   };
 
   if (isValid) {
@@ -53,9 +55,10 @@ async function dbQuery({
   wa,
   registerDate,
   invited,
+  source,
 }: KudosData) {
   const query =
-    'INSERT INTO users_final (id, firstname, lastname, email, whatsapp, registerdate, invited, parentid) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)';
+    'INSERT INTO users_final (id, firstname, lastname, email, whatsapp, registerdate, invited, parentid, source) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
 
   const arr = [
     id,
@@ -66,6 +69,7 @@ async function dbQuery({
     registerDate,
     invited,
     parentId,
+    source,
   ];
 
   return new Promise(function (resolve, reject) {

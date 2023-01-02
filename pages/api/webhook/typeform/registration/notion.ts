@@ -4,6 +4,7 @@ import verifyHeader from '$utils/typeform/verifyheader';
 import { upperCaseEveryLetter } from '$utils/helper/datacleaning';
 import { getTodayShort } from '$utils/helper/gettoday';
 import { Client } from '@notionhq/client';
+import { renderSource } from '$utils/typeform/rendersource';
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,6 +28,7 @@ export default async function handler(
     registerDate: getTodayShort(),
     invited: false,
     subscribe: true,
+    source: renderSource(Number(hiddenAnswers.index)),
   };
 
   if (isValid) {
@@ -52,6 +54,7 @@ async function notionQuery({
   wa,
   registerDate,
   invited,
+  source,
 }: KudosData) {
   const notion = new Client({
     auth: process.env.NOTION_API_KEY_KUDOS as string,
@@ -104,6 +107,11 @@ async function notionQuery({
             invited: {
               select: {
                 name: `${invited}`,
+              },
+            },
+            source: {
+              select: {
+                name: `${source}`,
               },
             },
             registerdate: {
