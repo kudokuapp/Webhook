@@ -56,9 +56,10 @@ async function dbQuery({
   registerDate,
   invited,
   source,
+  subscribe,
 }: KudosData) {
   const query =
-    'INSERT INTO users_final (id, firstname, lastname, email, whatsapp, registerdate, invited, parentid, source) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
+    'INSERT INTO users_final (id, firstname, lastname, email, whatsapp, registerdate, invited, parentid, source, subscribe) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)';
 
   const arr = [
     id,
@@ -70,6 +71,7 @@ async function dbQuery({
     invited,
     parentId,
     source,
+    subscribe,
   ];
 
   return new Promise(function (resolve, reject) {
