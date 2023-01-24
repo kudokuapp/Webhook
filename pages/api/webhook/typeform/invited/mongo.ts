@@ -29,7 +29,7 @@ export default async function handler(
         lastName: data.lastname,
         email: data.email,
         whatsapp: data.whatsapp,
-        kudos: Number(data.id),
+        kudosNo: Number(data.id),
       };
 
       //Avoid duplication in the app
