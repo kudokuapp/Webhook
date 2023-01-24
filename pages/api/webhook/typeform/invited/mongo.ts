@@ -25,6 +25,7 @@ export default async function handler(
       const query = {
         username: '',
         password: '',
+        pin: '',
         firstName: data.firstname,
         lastName: data.lastname,
         email: data.email,
