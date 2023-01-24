@@ -64,8 +64,9 @@ async function sendInvitationEmail({
 }: KudosData): Promise<sgMail.ClientResponse> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
-  const DISCORD = 'https://discord.gg/S9TVVv5YU3';
   const YOUTUBE = 'https://youtu.be/2ebPSAG_pvI';
+  const SLACK =
+    'https://join.slack.com/t/kudos-kudoku/shared_invite/zt-1nad7ihro-u29IvYLT87E_OXOemm1ltg';
 
   const html = `
 <div
@@ -300,11 +301,11 @@ async function sendInvitationEmail({
           box-sizing: inherit;
           font-family: Avenir, Helvetica, Arial, sans-serif;
         "
-        >Discord</strong
+        >Slack</strong
       >
       Kudoku? Kalo belom, kamu bisa join dengan klik link
       <a
-        href="${DISCORD}"
+        href="${SLACK}"
         style="
           background-color: transparent;
           box-sizing: inherit;
