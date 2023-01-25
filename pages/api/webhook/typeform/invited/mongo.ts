@@ -31,6 +31,7 @@ export default async function handler(
         email: data.email,
         whatsapp: data.whatsapp,
         kudosNo: Number(data.id),
+        createdAt: new Date(),
       };
 
       //Avoid duplication in the app
