@@ -38,6 +38,8 @@ export default async function handler(
         month,
       });
 
+      console.log('test');
+
       res
         .status(200)
         .json({ message: 'Successfully send email to all kudos (BGST)' });
