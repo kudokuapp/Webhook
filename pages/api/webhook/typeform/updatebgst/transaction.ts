@@ -31,7 +31,7 @@ export default async function handler(
         .json({ message: 'Successfully update all accounts of BGST' });
     } catch (e) {
       const error = e as Error;
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ ...error });
     }
   } else {
     res
