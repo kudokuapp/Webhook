@@ -41,7 +41,8 @@ export default async function handler(
 }
 
 async function dbQuery(): Promise<any> {
-  const queryString = 'SELECT * FROM "Account" ORDER BY id ASC';
+  const queryString =
+    'SELECT * FROM "Account" WHERE expired=false ORDER BY id ASC';
 
   const arr: any[] = [];
 

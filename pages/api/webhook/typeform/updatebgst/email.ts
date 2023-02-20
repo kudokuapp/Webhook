@@ -36,15 +36,7 @@ export default async function handler(
   if (isValid && choice === 'YES') {
     const response = await dbQuery();
 
-    let tokenNotExpired = [];
-
-    for (const account of response) {
-      if (!account.expired) {
-        tokenNotExpired.push(account);
-      }
-    }
-
-    const groupByKudosId = _.groupBy(tokenNotExpired, ({ kudosId }) => {
+    const groupByKudosId = _.groupBy(response, ({ kudosId }) => {
       return kudosId;
     });
 
@@ -56,19 +48,16 @@ export default async function handler(
 
         const element = groupByKudosId[kudosId];
 
-        if (kudosId === '1') {
-          const user = await userQuery(Number(kudosId));
+        const user = await userQuery(Number(kudosId));
 
-          await sendEmail({
-            email: user.email,
-            firstName: user.firstName,
-            kudosNo: kudosId,
-            month,
-            array: element,
-          });
-        }
+        await sendEmail({
+          email: user.email,
+          firstName: user.firstName,
+          kudosNo: kudosId,
+          month,
+          array: element,
+        });
       }
-
       res
         .status(200)
         .json({ message: 'Successfully send email to all kudos (BGST)' });
@@ -84,7 +73,8 @@ export default async function handler(
 }
 
 async function dbQuery(): Promise<any> {
-  const queryString = 'SELECT * FROM "Account" ORDER BY id ASC';
+  const queryString =
+    'SELECT * FROM "Account" WHERE expired=false ORDER BY id ASC';
 
   const arr: any[] = [];
 
