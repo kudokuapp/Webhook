@@ -149,7 +149,7 @@ async function sendEmail({
                 <td><img alt="BGST" src="https://drive.google.com/uc?id=1ePzW3lbfFIb2RlpnqMFyyv9QqlQHipYu" width="78" height="25" style="display:block;outline:none;border:none;text-decoration:none" />
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#e6ebf1;margin:20px 0" />
                   <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Heyy ${firstName}, Kudos No. ${kudosNo}!</p>
-                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Laporan BGST kamu bulan <strong>${month}/strong> udah tersedia nih.</p>
+                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Laporan BGST kamu bulan <strong>${month}</strong> udah tersedia nih.</p>
                   <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Akun Bank/E-Wallet yang sudah kamu <em>connect</em> ke BGST dan sudah tersedia laporannya itu ada:
                   <ol style="color:#525f7f;font-size:16px;line-height:24px;text-align:left">
                     ${array.map((val) => {
