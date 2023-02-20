@@ -52,7 +52,7 @@ async function dbQuery(): Promise<any> {
 }
 
 async function updateQuery(accountId: string | number): Promise<any> {
-  const queryString = 'UPDATE "Account" SET "expired"=false WHERE "id"=$1';
+  const queryString = 'UPDATE "Account" SET "expired"=true WHERE "id"=$1';
 
   const arr = [accountId];
 
