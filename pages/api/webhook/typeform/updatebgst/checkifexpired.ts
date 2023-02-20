@@ -1,22 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import verifyHeader from '$utils/typeform/verifyheader';
 import bgstpool from '$utils/bgst';
-import moment from 'moment';
 import axios, { AxiosError } from 'axios';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { event_type, form_response } = req.body;
+  const { secret } = req.query;
 
-  const answers = [...form_response.answers];
+  const isValid =
+    secret ===
+    'JitW36qjf!C-DpGxsVLekdF8pxrj@Mksxs397qyiCfPVK4_AGA4__44jC_giLmNkuy73-_pGUkjipkzXN@.hJUD@vMmRr4KJL@8!';
 
-  const choice = answers[0].choice.label;
-
-  const isValid = verifyHeader(req, event_type);
-
-  if (isValid && choice === 'YES') {
+  if (isValid) {
     const response = await dbQuery();
 
     for (const account of response) {
