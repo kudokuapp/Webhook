@@ -22,23 +22,15 @@ export default async function handler(
 
   if (isValid && choice === 'YES') {
     try {
-      // const response = await dbQuery();
+      const response = await dbQuery();
 
-      // for (const kudos of response) {
-      //   await sendEmail({
-      //     email: kudos.email,
-      //     kudosNo: kudos.kudosId,
-      //     month,
-      //   });
-      // }
-
-      await sendEmail({
-        email: 'fdwilogo@gmail.com',
-        kudosNo: 1,
-        month,
-      });
-
-      console.log('testttt');
+      for (const kudos of response) {
+        await sendEmail({
+          email: kudos.email,
+          kudosNo: kudos.kudosId,
+          month,
+        });
+      }
 
       res
         .status(200)
