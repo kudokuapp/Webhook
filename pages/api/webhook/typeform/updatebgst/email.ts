@@ -38,7 +38,7 @@ export default async function handler(
         month,
       });
 
-      console.log('test');
+      console.log('testttt');
 
       res
         .status(200)
