@@ -59,14 +59,6 @@ export default async function handler(
         if (kudosId === '1') {
           const user = await userQuery(Number(kudosId));
 
-          console.table({
-            email: user.email,
-            firstName: user.firstName,
-            kudosNo: kudosId,
-            month,
-            array: element,
-          });
-
           await sendEmail({
             email: user.email,
             firstName: user.firstName,
@@ -117,7 +109,7 @@ async function userQuery(kudosId: number): Promise<any> {
       if (err) {
         reject(err);
       } else {
-        resolve(res.rows);
+        resolve(res.rows[0]);
       }
     });
   });
