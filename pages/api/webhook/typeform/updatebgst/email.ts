@@ -3,6 +3,19 @@ import verifyHeader from '$utils/typeform/verifyheader';
 import bgstpool from '$utils/bgst';
 import sgMail from '@sendgrid/mail';
 import moment from 'moment';
+import _ from 'lodash';
+import institutionIdToString from '$utils/helper/institutionIdToString';
+
+interface LodashGroupByKudosId {
+  id: number;
+  createdAt: Date | string;
+  institutionId: number;
+  accessToken: string;
+  accountNumber: string;
+  brick_account_id: string;
+  kudosId: number;
+  expired: boolean;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,15 +34,39 @@ export default async function handler(
   const month = moment().subtract(1, 'M').format('MMMM YYYY');
 
   if (isValid && choice === 'YES') {
-    try {
-      const response = await dbQuery();
+    const response = await dbQuery();
 
-      for (const kudos of response) {
-        await sendEmail({
-          email: kudos.email,
-          kudosNo: kudos.kudosId,
-          month,
-        });
+    let tokenNotExpired = [];
+
+    for (const account of response) {
+      if (!account.expired) {
+        tokenNotExpired.push(account);
+      }
+    }
+
+    const groupByKudosId = _.groupBy(tokenNotExpired, ({ kudosId }) => {
+      return kudosId;
+    });
+
+    const iteratee = Object.keys(groupByKudosId);
+
+    try {
+      for (let i = 0; i < iteratee.length; i++) {
+        const kudosId = iteratee[i];
+
+        const element = groupByKudosId[kudosId];
+
+        if (kudosId === '1') {
+          const user = await userQuery(Number(kudosId));
+
+          await sendEmail({
+            email: user.email,
+            firstName: user.firstName,
+            kudosNo: kudosId,
+            month,
+            array: element,
+          });
+        }
       }
 
       res
@@ -62,14 +99,34 @@ async function dbQuery(): Promise<any> {
   });
 }
 
+async function userQuery(kudosId: number): Promise<any> {
+  const query = 'SELECT * FROM "User" WHERE id=$1';
+
+  const arr = [kudosId];
+
+  return new Promise(function (resolve, reject) {
+    bgstpool.query(query, arr, (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res.rows);
+      }
+    });
+  });
+}
+
 async function sendEmail({
   email,
+  firstName,
   kudosNo,
   month,
+  array,
 }: {
   email: string;
-  kudosNo: number;
+  firstName: string;
+  kudosNo: number | string;
   month: string;
+  array: LodashGroupByKudosId[];
 }): Promise<sgMail.ClientResponse> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
@@ -79,7 +136,7 @@ async function sendEmail({
   <head>
     <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
   </head>
-  <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">Laporan BGST kamu udah siap!<div> ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿</div>
+  <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">Laporan BGST kamu udah siap!<div> ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿</div>
   </div>
 
   <body style="background-color:#f6f9fc;font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Ubuntu,sans-serif">
@@ -91,8 +148,18 @@ async function sendEmail({
               <tr>
                 <td><img alt="BGST" src="https://drive.google.com/uc?id=1ePzW3lbfFIb2RlpnqMFyyv9QqlQHipYu" width="78" height="25" style="display:block;outline:none;border:none;text-decoration:none" />
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#e6ebf1;margin:20px 0" />
-                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Heyy Kudos No. ${kudosNo}</p>
-                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Laporan BGST kamu bulan <strong>${month}</strong> udah tersedia nih.</p><a href="https://bgst.kudoku.id/t" target="_blank" style="background-color:#2C5EA8;border-radius:5px;color:#fff;font-size:16px;font-weight:bold;text-decoration:none;text-align:center;display:inline-block;width:100%;p-x:10px;p-y:10px;line-height:100%;max-width:100%;padding:10px 10px"><span><!--[if mso]><i style="letter-spacing: 10px;mso-font-width:-100%;mso-text-raise:15" hidden>&nbsp;</i><![endif]--></span><span style="background-color:#2C5EA8;border-radius:5px;color:#fff;font-size:16px;font-weight:bold;text-decoration:none;text-align:center;display:inline-block;width:100%;p-x:10px;p-y:10px;max-width:100%;line-height:120%;text-transform:none;mso-padding-alt:0px;mso-text-raise:7.5px">Cek laporan BGST</span><span><!--[if mso]><i style="letter-spacing: 10px;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
+                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Heyy ${firstName}, Kudos No. ${kudosNo}!</p>
+                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Laporan BGST kamu bulan <strong>${month}/strong> udah tersedia nih.</p>
+                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Akun Bank/E-Wallet yang sudah kamu <em>connect</em> ke BGST dan sudah tersedia laporannya itu ada:
+                  <ol style="color:#525f7f;font-size:16px;line-height:24px;text-align:left">
+                    ${array.map((val) => {
+                      return `<li>${institutionIdToString(
+                        val.institutionId
+                      )}</li>`;
+                    })}
+                  </ol>
+                  </p>
+                  <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Penasaran kan bulan January 2023 kamu gimana? Yuk buruan cek BGST sekarang!</p><a href="https://bgst.kudoku.id/t" target="_blank" style="background-color:#2C5EA8;border-radius:5px;color:#fff;font-size:16px;font-weight:bold;text-decoration:none;text-align:center;display:inline-block;width:100%;p-x:10px;p-y:10px;line-height:100%;max-width:100%;padding:10px 10px"><span><!--[if mso]><i style="letter-spacing: 10px;mso-font-width:-100%;mso-text-raise:15" hidden>&nbsp;</i><![endif]--></span><span style="background-color:#2C5EA8;border-radius:5px;color:#fff;font-size:16px;font-weight:bold;text-decoration:none;text-align:center;display:inline-block;width:100%;p-x:10px;p-y:10px;max-width:100%;line-height:120%;text-transform:none;mso-padding-alt:0px;mso-text-raise:7.5px">Cek laporan BGST</span><span><!--[if mso]><i style="letter-spacing: 10px;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;border-color:#e6ebf1;margin:20px 0" />
                   <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">Kalo ada bug, error, atau feature request, jangan sungkan-sungkan untuk email balik ke gua yaa. Tinggal reply aja email ini pasti gua bales!</p>
                   <p style="font-size:16px;line-height:24px;margin:16px 0;color:#525f7f;text-align:left">- Furqon</p>
