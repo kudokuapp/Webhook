@@ -3,6 +3,7 @@ import verifyHeader from '$utils/typeform/verifyheader';
 import bgstpool from '$utils/bgst';
 import sgMail from '@sendgrid/mail';
 import institutionIdToString from '$utils/helper/institutionIdToString';
+import linkFromInstitutionId from '$utils/helper/linkFromInstitutionId';
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,6 +31,7 @@ export default async function handler(
           firstName: user.firstName,
           kudosNo: user.id,
           account: institutionIdToString(element.institutionId),
+          link: linkFromInstitutionId(element.institutionId),
         });
       }
       res
@@ -84,11 +86,13 @@ async function sendEmail({
   firstName,
   kudosNo,
   account,
+  link,
 }: {
   email: string;
   firstName: string;
   kudosNo: number | string;
   account: string;
+  link: string;
 }): Promise<sgMail.ClientResponse> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
@@ -111,9 +115,7 @@ async function sendEmail({
               <tr>
                 <td>
                   <p style="font-size:14px;line-height:24px;margin:0 0 10px 0;text-align:left">Hey <strong>${firstName}, Kudos No. ${kudosNo}</strong>!</p>
-                  <p style="font-size:14px;line-height:24px;margin:0 0 10px 0;text-align:left"><strong>Akun ${account} kamu perlu login kembali</strong> di BGST. Jangan khawatir, abis kamu login kembali, laporan bulanan kamu yang paling baru langsung siap buat kamu.</p><a href="https://bgst.kudoku.id/connect/${account
-    .trim()
-    .toLowerCase()}" target="_blank" style="font-size:14px;background-color:#2C5EA8;color:#fff;line-height:100%;border-radius:0.5em;padding:0px 0px;text-decoration:none;display:inline-block;max-width:100%"><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%;mso-text-raise:0" hidden>&nbsp;</i><![endif]--></span><span style="font-size:14px;background-color:#2C5EA8;color:#fff;line-height:120%;border-radius:0.5em;padding:0.75em 1.5em;max-width:100%;display:inline-block;text-decoration:none;text-transform:none;mso-padding-alt:0px;mso-text-raise:0">Login kembali akun ${account}</span><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
+                  <p style="font-size:14px;line-height:24px;margin:0 0 10px 0;text-align:left"><strong>Akun ${account} kamu perlu login kembali</strong> di BGST. Jangan khawatir, abis kamu login kembali, laporan bulanan kamu yang paling baru langsung siap buat kamu.</p><a href="${link}" target="_blank" style="font-size:14px;background-color:#2C5EA8;color:#fff;line-height:100%;border-radius:0.5em;padding:0px 0px;text-decoration:none;display:inline-block;max-width:100%"><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%;mso-text-raise:0" hidden>&nbsp;</i><![endif]--></span><span style="font-size:14px;background-color:#2C5EA8;color:#fff;line-height:120%;border-radius:0.5em;padding:0.75em 1.5em;max-width:100%;display:inline-block;text-decoration:none;text-transform:none;mso-padding-alt:0px;mso-text-raise:0">Login kembali akun ${account}</span><span><!--[if mso]><i style="letter-spacing: undefinedpx;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
                 </td>
               </tr>
             </tbody>
