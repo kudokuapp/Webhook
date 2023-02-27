@@ -75,12 +75,14 @@ async function dbQuery({
   ];
 
   return new Promise(function (resolve, reject) {
-    pool.query(query, arr, (err, res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
+    setTimeout(() => {
+      pool.query(query, arr, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    }, 5000);
   });
 }
