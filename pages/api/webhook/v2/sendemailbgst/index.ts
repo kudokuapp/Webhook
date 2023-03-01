@@ -26,7 +26,7 @@ export default async function handler(
       for (const kudos of response) {
         await sendEmail({
           email: kudos.email,
-          firstName: kudos.firstname,
+          firstName: kudos.firstName,
           kudos: kudos.id,
           htmlBody: answer.emailBody,
           subject: answer.emailSubject,
