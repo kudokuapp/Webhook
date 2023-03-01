@@ -83,6 +83,6 @@ async function dbQuery({
           resolve(res);
         }
       });
-    }, 5000);
+    }, 2000);
   });
 }
